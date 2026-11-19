@@ -72,7 +72,7 @@ export function evaluarCriterios(p) {
   const criterio = (ok, falta) => (ok === null || falta ? 'falta' : ok ? 'ok' : 'no');
   const cocina = p.cocina.toLowerCase();
   const credito = p.aptoCredito.toLowerCase();
-  const sinDatoCocina = !cocina || cocina === 'no dice';
+  const sinDatoCocina = !cocina || cocina === 'no dice' || cocina.includes('verificar');
   const sinDatoCredito = !credito || credito === 'no dice';
   return [
     { clave: 'precio', nombre: 'Precio', estado: criterio(p.precioOk, p.precio === null) },
@@ -80,7 +80,7 @@ export function evaluarCriterios(p) {
     {
       clave: 'cocina',
       nombre: 'Cocina separada',
-      estado: sinDatoCocina ? 'falta' : cocina === 'separada' ? 'ok' : 'no',
+      estado: sinDatoCocina ? 'falta' : cocina.startsWith('separada') ? 'ok' : 'no',
     },
     { clave: 'exterior', nombre: 'Balcón o patio', estado: p.exterior ? 'ok' : 'falta' },
     {
@@ -112,9 +112,10 @@ export function votoDe(p, votosLocales) {
   return Object.prototype.hasOwnProperty.call(votosLocales, p.id) ? votosLocales[p.id] : p.voto;
 }
 
-/** Propiedades sin votar, ordenadas: primero las que cumplen más criterios. */
+/** Propiedades sin votar: primero las que tienen foto, después las que cumplen más criterios. */
 export function cola(propiedades, votosLocales) {
-  const puntaje = (p) => evaluarCriterios(p).reduce((s, c) => s + (c.estado === 'ok' ? 2 : c.estado === 'falta' ? 1 : 0), 0);
+  const criterios = (p) => evaluarCriterios(p).reduce((s, c) => s + (c.estado === 'ok' ? 2 : c.estado === 'falta' ? 1 : 0), 0);
+  const puntaje = (p) => (p.foto ? 100 : 0) + criterios(p);
   return propiedades
     .filter((p) => !votoDe(p, votosLocales))
     .map((p, orden) => ({ p, orden, puntaje: puntaje(p) }))

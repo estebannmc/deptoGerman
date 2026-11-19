@@ -34,6 +34,22 @@ test('marca dato faltante y rechazos', () => {
   assert.equal(evaluarCriterios(p14).find((c) => c.clave === 'radio').estado, 'no');
 });
 
+test('acepta variantes de cocina separada y marca las dudosas', () => {
+  const base = { ...normalizar(snapshot)[0] };
+  const estadoCocina = (cocina) => evaluarCriterios({ ...base, cocina }).find((c) => c.clave === 'cocina').estado;
+  assert.equal(estadoCocina('Separada por barra'), 'ok');
+  assert.equal(estadoCocina('Separada (verificar)'), 'falta');
+  assert.equal(estadoCocina('Semiseparada'), 'no');
+  assert.equal(estadoCocina('Integrada'), 'no');
+});
+
+test('la cola pone primero las que tienen foto', () => {
+  const props = normalizar(snapshot);
+  const pendientes = cola(props, {});
+  const primeraSinFoto = pendientes.findIndex((p) => !p.foto);
+  assert.ok(pendientes.slice(primeraSinFoto).every((p) => !p.foto));
+});
+
 test('la cuota coincide con PMT de la planilla', () => {
   // Planilla: 52.500 USD al 7,5% en 20 años = 422,94 USD.
   assert.equal(Math.round(cuota(52500, 0.075, 20) * 100) / 100, 422.94);
