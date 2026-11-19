@@ -103,6 +103,7 @@ function deshacer() {
 function crearTarjeta(p) {
   const nodo = $('#tpl-tarjeta').content.firstElementChild.cloneNode(true);
   nodo.dataset.id = p.id;
+  nodo.querySelector('.ventana-nombre').textContent = `${p.id || 'DEPTO'}.EXE`;
   const img = nodo.querySelector('img');
   const foto = nodo.querySelector('.foto');
   if (p.foto) {
