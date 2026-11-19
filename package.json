@@ -1,0 +1,13 @@
+{
+  "name": "depto-german",
+  "private": true,
+  "type": "module",
+  "description": "Webapp tipo Tinder para elegir propiedades en Rosario a partir de la planilla Prioridad dptos.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "test": "node --test"
+  }
+}
