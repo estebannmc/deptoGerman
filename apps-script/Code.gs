@@ -11,6 +11,8 @@
  *    APPS_SCRIPT_URL, junto con APPS_SCRIPT_TOKEN (el mismo TOKEN).
  */
 
+// Planilla "Prioridad dptos". Se usa si el script no está creado desde la planilla.
+const ID_PLANILLA = '1GAKtLxr7Gp9z6XsWxsVIduSpCzwCk8wctC0gT2Qwh4k';
 const HOJA_CANDIDATAS = 'Candidatas';
 const HOJA_RESEARCH = 'Research mercado';
 const COLUMNA_VOTO = 'Voto';
@@ -30,7 +32,7 @@ function doGet(e) {
   if (!autorizado_(e && e.parameter && e.parameter.token)) {
     return json_({ error: 'unauthorized' });
   }
-  const libro = SpreadsheetApp.getActive();
+  const libro = libro_();
   const valores = libro.getSheetByName(HOJA_CANDIDATAS).getDataRange().getValues();
   const headers = valores.shift();
   const rows = valores.filter(function (fila) {
@@ -60,7 +62,7 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const hoja = SpreadsheetApp.getActive().getSheetByName(HOJA_CANDIDATAS);
+    const hoja = libro_().getSheetByName(HOJA_CANDIDATAS);
     const headers = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
     const columna = headers.indexOf(COLUMNA_VOTO) + 1;
     if (columna === 0) return json_({ error: 'missing_vote_column' });
@@ -89,4 +91,8 @@ function json_(objeto) {
   return ContentService.createTextOutput(JSON.stringify(objeto)).setMimeType(
     ContentService.MimeType.JSON
   );
+}
+
+function libro_() {
+  return SpreadsheetApp.getActive() || SpreadsheetApp.openById(ID_PLANILLA);
 }
